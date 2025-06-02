@@ -1,7 +1,9 @@
 <template>
   <div class="chatBoxViewer">
     <div class="boxViewer" ref="boxViewer">
-      <div v-for="(msg, idx) in messages" :key="idx">{{ msg .username}}: {{msg.msg}}</div>
+      <div v-for="(msg, idx) in messages" :key="idx">
+        {{ msg.username }}: {{ msg.msg }}
+      </div>
     </div>
   </div>
 </template>
@@ -15,13 +17,13 @@ export default {
     },
   },
   watch: {
-    messages(){
+    messages() {
       this.$nextTick(() => {
         const el = this.$refs.boxViewer;
         if (el) el.scrollTop = el.scrollHeight;
-      })
-    }
-  }
+      });
+    },
+  },
 };
 </script>
 

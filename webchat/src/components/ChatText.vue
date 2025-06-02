@@ -1,28 +1,32 @@
 <template>
   <div class="chatTextBox">
-    <input type="text" class="textbox" v-model="message" @keyup.enter="emitMessage" placeholder="digite sua mensagem"/>
-    
-    <button class="textbutton" @click="emitMessage">
-      enviar
-    </button>
+    <input
+      type="text"
+      class="textbox"
+      v-model="message"
+      @keyup.enter="emitMessage"
+      placeholder="digite sua mensagem"
+    />
+
+    <button class="textbutton" @click="emitMessage">enviar</button>
   </div>
 </template>
 
 <script>
 export default {
-  data(){
+  data() {
     return {
-      message: ""
-    }
+      message: "",
+    };
   },
   methods: {
     emitMessage() {
-      if (this.message.trim()){
+      if (this.message.trim()) {
         this.$emit("send-message", this.message);
         this.message = "";
       }
-    }
-  }
+    },
+  },
 };
 </script>
 

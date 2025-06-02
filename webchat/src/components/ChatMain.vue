@@ -16,10 +16,10 @@ import chatTextBox from "../components/ChatText.vue";
 import chatBoxViewer from "../components/ChatBox.vue";
 
 const ALL_GROUPS = [
-    {name: "Todos", id: "todos"},
-    {name: "Comercial", id: "comercial"},
-    {name: "Suporte", id: "suporte"},
-    {name: "Financeiro", id: "financeiro"}
+  { name: "Todos", id: "todos" },
+  { name: "Comercial", id: "comercial" },
+  { name: "Suporte", id: "suporte" },
+  { name: "Financeiro", id: "financeiro" },
 ];
 
 export default {
@@ -30,7 +30,7 @@ export default {
   },
   data() {
     const userGroups = this.user?.groups || ["todos"];
-    const filteredGroups = ALL_GROUPS.filter(g => userGroups.includes(g.id))
+    const filteredGroups = ALL_GROUPS.filter((g) => userGroups.includes(g.id));
     return {
       groups: filteredGroups,
       activeGroup: filteredGroups[0]?.id || "todos",
@@ -43,6 +43,11 @@ export default {
     },
   },
   mounted() {
+    this.socket.on("chat history", (history) => {
+      this.messages = history;
+      console.log("historico", history);
+      this.messages = Array.isArray(history) ? history : [];
+    });
     this.socket.on("chat message", (msgObj) => {
       this.messages.push(msgObj);
     });

@@ -1,8 +1,13 @@
 <template>
   <div class="navChatBox">
-<div v-for="group in groups" :key="group.id" :class="['chatNavItem' , {active: group.id === activeGroup}]" @click="$emit('select-group', group.id)" >
-{{group.name}}
-</div>
+    <div
+      v-for="group in groups"
+      :key="group.id"
+      :class="['chatNavItem', { active: group.id === activeGroup }]"
+      @click="$emit('select-group', group.id)"
+    >
+      {{ group.name }}
+    </div>
   </div>
 </template>
 
@@ -10,8 +15,8 @@
 export default {
   props: {
     groups: Array,
-    activeGroup: String
-  }
+    activeGroup: String,
+  },
 };
 </script>
 
@@ -34,6 +39,4 @@ export default {
   background: #bdbdbd;
   font-weight: bold;
 }
-
-
 </style>

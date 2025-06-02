@@ -1,55 +1,61 @@
-const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+const {
+  readHistory,
+  writeHistory,
+  addMessageToHistory,
+} = require("./src/historyUtilities.js");
+const { USERS, GROUPS } = require("./src/data.js");
+const fs = require("fs");
+const { timeStamp, group } = require("console");
 
 const app = express();
 const port = 3030;
 const server = http.createServer(app);
 const io = new Server(server, {
-    cors: { origin: '*' }
+  cors: { origin: "*" },
 });
 
-const USERS = [
-    { username: "comercial1", role: "comer1", groups: ["todos", "comercial"] },
-    { username: "comercial2", role: "comer2", groups: ["todos", "comercial"] },
-    { username: "suporte", role: "sup1", groups: ["todos", "suporte"] },
-    { username: "financeiro", role: "finan1", groups: ["todos", "financeiro"] },
-    { username: "adm", role: "adm", groups: ["todos", "comercial", "financeiro", "suporte"] }
-];
+io.on("connection", (socket) => {
+  console.log("Alguem conectou hein");
 
-const GROUPS = [
-    {name: "Todos", id: "todos"},
-    {name: "Comercial", id: "comercial"},
-    {name: "Suporte", id: "suporte"},
-    {name: "Financeiro", id: "financeiro"}
-];
+  socket.on("login", (username, password) => {
+    const user = USERS.find(
+      (u) => u.username === username && u.password === password
+    );
+    if (user) {
+      socket.username = username;
+      socket.role = user.role;
+      (socket.groups = user.groups), socket.emit("login success", user);
+      socket.emit("chat history", readHistory());
+      console.log(`usuário logado: ${username}`);
+    } else {
+      socket.emit("login error", "Usuário ou senha incorretos");
+    }
+  });
 
-io.on('connection', (socket) => {
-    console.log('Alguem conectou hein');
-
-    socket.on('login', (username) => {
-        const user = USERS.find(u => u.username === username);
-        if (user) {
-            socket.username = username;
-            socket.role = user.role;
-            socket.groups = user.groups,
-            socket.emit('login success', user);
-            console.log(`usuário logado: ${username}`)
-        } else {
-            socket.emit('login error', 'Usuário ou senha incorretos')
-        }
-    });
-
-
-    socket.on('chat message', (data) => {
-        io.emit('chat message', {
-            username: socket.username || 'Anonimo',
-            msg: data.msg,
-            group: data.group      
-        });
-    });
+  socket.on("chat message", (data) => {
+    if (!socket.username) {
+      socket.emit("chat message", {
+        username: "Sistema",
+        msg: "Você precisa estar logado para enviar mensagens",
+        group: data.group,
+        timeStamp: Date.now(),
+      });
+      return;
+    }
+    const msgObj = {
+      username: socket.username,
+      msg: data.msg,
+      group: data.group,
+      timeStamp: Date.now(),
+    };
+    io.emit("chat message", msgObj);
+    addMessageToHistory(msgObj);
+  });
 });
 
 server.listen(port, () => {
-    console.log(`ta funcionando na porta ${port}`)
+  console.log(`ta funcionando na porta ${port}`);
 });
